@@ -101,6 +101,9 @@ not an exception. Scan events are sorted oldest first, each with FedEx's `eventT
 `city countryCode` as `location`. The status is mapped from `latestStatusDetail.code`, else from
 the latest event's type:
 
+> [!WARNING]
+> Known defect: a bare locale `en` becomes `en_EN`, where FedEx expects `en_US` (or another existing locale).
+
 | FedEx code | `TrackingStatus` |
 |---|---|
 | `DL` | `DELIVERED` |
