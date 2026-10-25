@@ -4,7 +4,7 @@ namespace Omnibus\Fedex\Tests;
 
 use Omnibus\Fedex\FedexGatewayFactory;
 use Omnibus\Model\TrackingStatus;
-use Omnibus\Tests\Fixtures;
+use Omnibus\Testing\Fixtures;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
