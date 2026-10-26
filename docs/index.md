@@ -1,6 +1,6 @@
 # omnibus/fedex
 
-FedEx for [omniscient/omnibus](https://github.com/glitchr-studio/omnibus): rate quotes, shipments
+FedEx for [omnisense/omnibus](https://github.com/glitchr-omnisense/omnibus): rate quotes, shipments
 and labels, tracking and drop-off locations, through FedEx's REST APIs on an OAuth 2
 client-credentials token. The gateway calls:
 
@@ -20,7 +20,7 @@ on `https://apis.fedex.com` (live) or `https://apis-sandbox.fedex.com` (`sandbox
 composer require omnibus/fedex
 ```
 
-Requires PHP 8.2, `omniscient/omnibus` (2.x) and `symfony/http-client` (6.4, 7 or 8); given no
+Requires PHP 8.2, `omnisense/omnibus` (2.x) and `symfony/http-client` (6.4, 7 or 8); given no
 HTTP client, the factory makes one with `HttpClient::create()`. In a Symfony application with
 `Omnibus\Bridge\Symfony\OmnibusBundle`, the factory is registered as soon as the package is
 installed.
@@ -41,7 +41,7 @@ installed.
 | `client_secret` | string | - | yes | the project's client secret |
 | `account_number` | string | - | yes | the shipper's account |
 | `sandbox` | bool | `false` | no | `true`: `https://apis-sandbox.fedex.com` |
-| `rates` | list | - | no | prices from configuration instead of the Rate API ([the rates option](https://github.com/glitchr-studio/omnibus/blob/2.x/docs/configuration.md#the-rates-option)): with it, the Rate API is not called |
+| `rates` | list | - | no | prices from configuration instead of the Rate API ([the rates option](https://github.com/glitchr-omnisense/omnibus/blob/2.x/docs/configuration.md#the-rates-option)): with it, the Rate API is not called |
 
 Shipment options (`Shipment::$options`):
 
