@@ -95,14 +95,11 @@ base64-decoded into `content`, or its `url`. The format is `application/zpl` for
 location is not booked by this package.
 
 **Track.** With detailed scans, and `X-locale` built from the request's locale: `fr` becomes
-`fr_FR`, `en-GB` becomes `en_GB`; a bare language is doubled in capitals, so `en` becomes
-`en_EN`. When FedEx answers the number with an error, the tracking is `UNKNOWN` with no events,
+`fr_FR`, `en` `en_US`, `de` `de_DE` (a bare language takes its usual country), `en-GB` becomes
+`en_GB`; an unknown bare language is `en_US`. When FedEx answers the number with an error, the tracking is `UNKNOWN` with no events,
 not an exception. Scan events are sorted oldest first, each with FedEx's `eventType` as `code` and
 `city countryCode` as `location`. The status is mapped from `latestStatusDetail.code`, else from
 the latest event's type:
-
-> [!WARNING]
-> Known defect: a bare locale `en` becomes `en_EN`, where FedEx expects `en_US` (or another existing locale).
 
 | FedEx code | `TrackingStatus` |
 |---|---|

@@ -18,7 +18,7 @@ final class FedexGatewayTest extends TestCase
         $http = new MockHttpClient(function (string $method, string $url, array $options): MockResponse {
             self::assertStringStartsWith('https://apis-sandbox.fedex.com', $url);
             $path = (string) parse_url($url, \PHP_URL_PATH);
-            $this->calls[] = [$method, $path, \is_string($options['body'] ?? null) && str_starts_with($options['body'], '{') ? json_decode($options['body'], true) : []];
+            $this->calls[] = [$method, $path, \is_string($options['body'] ?? null) && str_starts_with($options['body'], '{') ? json_decode($options['body'], true) : [], $options['headers'] ?? []];
 
             return match (true) {
                 '/oauth/token' === $path => new MockResponse(json_encode(['access_token' => 'tok', 'expires_in' => 3599])),
@@ -73,5 +73,15 @@ final class FedexGatewayTest extends TestCase
         self::assertSame('PRESSE DU CENTRE', $points[0]->name);
         self::assertSame(800, $points[0]->distance);
         self::assertSame([['09:00', '19:00']], $points[0]->openingHours[1]);
+    }
+
+    /** FedEx's X-locale is a language_COUNTRY that exists (en_US, fr_FR, de_DE...): a bare language takes its usual country, not itself doubled (en_EN). */
+    public function testABareLanguageBecomesAnExistingLocale(): void
+    {
+        foreach (['en' => 'en_US', 'fr' => 'fr_FR', 'de' => 'de_DE', 'ja' => 'ja_JP', 'en-GB' => 'en_GB', 'fr_CA' => 'fr_CA', 'xx' => 'en_US'] as $given => $sent) {
+            $this->calls = [];
+            $this->gateway()->track('794644790000', $given);
+            self::assertContains('X-locale: '.$sent, end($this->calls)[3], $given);
+        }
     }
 }
