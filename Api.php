@@ -3,6 +3,7 @@
 namespace Omnibus\Fedex;
 
 use Omnibus\Exception\CarrierException;
+use Omnibus\Http\Redaction;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -42,14 +43,16 @@ final class Api
             $status = $response->getStatusCode();
             $data = json_decode($response->getContent(false), true);
         } catch (HttpExceptionInterface|\JsonException $e) {
-            throw new CarrierException('fedex', 'FedEx request failed: '.$e->getMessage(), null, $e);
+            $secrets = $this->secrets();
+
+            throw Redaction::withoutArguments(new CarrierException('fedex', 'FedEx request failed: '.Redaction::text($e->getMessage(), $secrets), null, Redaction::copy($e, $secrets)));
         }
         if (!\is_array($data)) {
-            throw new CarrierException('fedex', sprintf('FedEx answered HTTP %d with a body that is not JSON.', $status));
+            throw Redaction::withoutArguments(new CarrierException('fedex', sprintf('FedEx answered HTTP %d with a body that is not JSON.', $status)));
         }
         if ($status >= 400) {
             $error = $data['errors'][0] ?? [];
-            throw new CarrierException('fedex', (string) ($error['message'] ?? sprintf('HTTP %d', $status)), isset($error['code']) ? (string) $error['code'] : null);
+            throw Redaction::withoutArguments(new CarrierException('fedex', (string) ($error['message'] ?? sprintf('HTTP %d', $status)), isset($error['code']) ? (string) $error['code'] : null));
         }
 
         return $data;
@@ -66,14 +69,26 @@ final class Api
                 'timeout' => $this->timeout,
             ])->toArray(false);
         } catch (HttpExceptionInterface $e) {
-            throw new CarrierException('fedex', 'FedEx gave no token: '.$e->getMessage(), null, $e);
+            $secrets = $this->secrets();
+
+            throw Redaction::withoutArguments(new CarrierException('fedex', 'FedEx gave no token: '.Redaction::text($e->getMessage(), $secrets), null, Redaction::copy($e, $secrets)));
         }
         if (empty($data['access_token'])) {
-            throw new CarrierException('fedex', (string) ($data['errors'][0]['message'] ?? 'FedEx gave no token: check the client id and secret.'));
+            throw Redaction::withoutArguments(new CarrierException('fedex', (string) ($data['errors'][0]['message'] ?? 'FedEx gave no token: check the client id and secret.')));
         }
         $this->token = (string) $data['access_token'];
         $this->expiresAt = time() + (int) ($data['expires_in'] ?? 3600);
 
         return $this->token;
+    }
+
+    /**
+     * What a failure must not carry: the credentials and the token, and what a request made of them.
+     *
+     * @return list<string>
+     */
+    private function secrets(string ...$more): array
+    {
+        return [$this->clientSecret, (string) $this->token, ...$more];
     }
 }
