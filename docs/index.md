@@ -178,6 +178,10 @@ omnibus:
                 sandbox: '%env(bool:FEDEX_SANDBOX)%'
 ```
 
+## Usage policy
+
+`policy.json` (named in `composer.json`'s `extra.omnisense.policy`) declares 1,400 calls per 10 seconds and 100,000 tracking calls a day, per project, read 2026-11-10 on FedEx's rate limits page. The OAuth token is kept for its lifetime (FedEx penalises token bursts with a 10-minute 403). Production credentials serve a single end user. No idempotency key on shipments: a shipment is sent once. A 429 is a `RateLimitedException`, never retried, and the carrier's next calls wait for its `Retry-After`, unsent. See omnisense/omnibus' [Usage policies and rate limits](https://github.com/glitchr-omnisense/omnibus/blob/2.x/docs/policies.md).
+
 ## Errors
 
 Every failure is an `Omnibus\Exception\CarrierException` whose `carrier` is `fedex`:

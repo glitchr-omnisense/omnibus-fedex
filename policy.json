@@ -1,0 +1,56 @@
+{
+    "$schema": "https://github.com/glitchr-omnisense/contracts/blob/1.x/resources/usage-policy.schema.json",
+    "provider": "fedex",
+    "rateLimits": [
+        {
+            "max": 1400,
+            "window": "second",
+            "every": 10,
+            "scope": "application",
+            "operations": [],
+            "note": "Per project, 10-second window; 429 for the rest of the window."
+        },
+        {
+            "max": 100000,
+            "window": "day",
+            "scope": "application",
+            "operations": [
+                "track"
+            ],
+            "note": "Default quota per project and capability, shared by the Track endpoints; resets 00:00 GMT."
+        }
+    ],
+    "concurrency": null,
+    "rights": {
+        "commercial": "contract",
+        "openSourceRequired": false,
+        "caching": {
+            "permission": "contract",
+            "maxTtl": null
+        },
+        "storage": "contract",
+        "redistribution": "forbidden",
+        "attribution": {
+            "required": false,
+            "text": null,
+            "url": null,
+            "where": []
+        },
+        "licence": null
+    },
+    "requirements": {
+        "key": true,
+        "userAgent": {
+            "required": false,
+            "pattern": null
+        }
+    },
+    "provenance": {
+        "terms": "https://developer.fedex.com/api/en-us/legal/fdpla.html",
+        "policy": "https://developer.fedex.com/api/en-us/guides/ratelimits.html",
+        "verifiedAt": "2026-11-10",
+        "declaredBy": "maintainer",
+        "contact": "https://developer.fedex.com/api/en-us/support.html",
+        "notes": "OAuth token endpoint: 3 a second per IP (burst over 5 s), 1 a second sustained over 2 minutes, a breach is a 403 for 10 minutes: the package keeps its token for its lifetime. An organisation-wide daily quota exists; the guide's 500,000 is an example figure, not declared. Developer License Agreement: production credentials for a single end user (each merchant its own project), no storage of FedEx Technology in a database others can reach without written consent, end-user data used solely to serve that end user. Best practices: at most 30 tracking numbers a request, delivered packages dropped. No idempotency key on shipments: a shipment is sent once."
+    }
+}
