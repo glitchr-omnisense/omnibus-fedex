@@ -4,6 +4,42 @@ FedEx for [omnisense/omnibus](https://github.com/glitchr-omnisense/omnibus): rat
 shipments and labels (Ship API), tracking (Track API) and drop-off locations (Location API) - the
 REST APIs with OAuth2 client credentials.
 
+## Install and a first call
+
+```sh
+composer require omnibus/fedex
+```
+
+No account for this first call: FedEx's answer is recorded (`Omnibus\Testing\RecordedHttpClient`
+answers in place of the API), so nothing leaves the process. With your own credentials, give the
+factory your HTTP client (or none: it makes its own) and drop the recorded one.
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Omnibus\Fedex\FedexGatewayFactory;
+use Omnibus\Testing\RecordedHttpClient;
+
+// FedEx's answer, recorded: no account, and nothing leaves the process.
+$http = new RecordedHttpClient([
+    'POST /oauth/token' => ['access_token' => 'tok', 'expires_in' => 3599],
+    '/track/v1/trackingnumbers' => ['output' => ['completeTrackResults' => [['trackResults' => [['latestStatusDetail' => ['code' => 'IT', 'description' => 'In transit'], 'scanEvents' => [
+        ['date' => '2026-10-02T08:00:00+02:00', 'eventType' => 'IT', 'eventDescription' => 'In transit', 'scanLocation' => ['city' => 'ROISSY', 'countryCode' => 'FR']],
+    ]]]]]]],
+]);
+$gateway = (new FedexGatewayFactory($http))->create(['client_id' => 'id', 'client_secret' => 'secret', 'account_number' => '510087', 'sandbox' => true]);
+
+$tracking = $gateway->track('794644790000');
+echo $tracking->status->value, ' - ', $tracking->latest()?->description, "\n";   // in_transit - In transit
+```
+
+A real call needs a FedEx account (the credentials below). The answer is shaped after FedEx's
+published documentation; the package has not been run against its service yet.
+
+## Configuration
+
 ```php
 $gateway = (new FedexGatewayFactory($http))->create($options);   // $http: the application's HTTP client - none given, the factory makes its own; the options below
 ```
